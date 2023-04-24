@@ -16,9 +16,6 @@ let flag = false
 aedes.on('publish', async (packet: any, client: any) => {
   const topic = packet.topic
   const payload = packet.payload.toString()
-  if(topic === 'test') {
-    console.log(JSON.parse(payload))
-  }
   if (topic === 'GPS_Position') {
     await prisma.record.create({
       data: {
@@ -61,7 +58,28 @@ app.get('/', async (req, res) => {
     })
   }
 })
-
+app.post('/', async (req, res) => {
+  try {
+    const { pos } = req.body
+    const records = await prisma.record.create({
+      data: {
+        pos,
+        fall: true,
+      },
+    })
+    res.send({
+      code: 1,
+      message: 'success',
+      data: records,
+    })
+  } catch(err) {
+    res.send({
+      code: 0,
+      message: 'error',
+      data: null,
+    })
+  }
+})
 mqttServer.listen(port)
 
 ws.createServer(
