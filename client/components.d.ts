@@ -9,13 +9,16 @@ export {}
 
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
+    API: typeof import('./src/components/API.vue')['default']
     ElButton: typeof import('element-plus/es')['ElButton']
     ElContainer: typeof import('element-plus/es')['ElContainer']
     ElHeader: typeof import('element-plus/es')['ElHeader']
     ElMain: typeof import('element-plus/es')['ElMain']
     ElTable: typeof import('element-plus/es')['ElTable']
     ElTableColumn: typeof import('element-plus/es')['ElTableColumn']
+    ElText: typeof import('element-plus/es')['ElText']
     Layout: typeof import('./src/components/Layout.vue')['default']
     MainContent: typeof import('./src/components/MainContent.vue')['default']
+    Mqtt: typeof import('./src/components/Mqtt.vue')['default']
   }
 }
