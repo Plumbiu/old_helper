@@ -17,6 +17,5 @@ declare module '@vue/runtime-core' {
     ElTableColumn: typeof import('element-plus/es')['ElTableColumn']
     Layout: typeof import('./src/components/Layout.vue')['default']
     MainContent: typeof import('./src/components/MainContent.vue')['default']
-    Mqtt: typeof import('./src/components/Mqtt.vue')['default']
   }
 }
