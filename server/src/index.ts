@@ -42,10 +42,7 @@ app.use(express.json())
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(cors())
 
-
 app.get('/', async (req, res) => {
-  console.log(1111);
-  
   try {
     const records = await prisma.record.findMany()
     res.send({
@@ -82,6 +79,20 @@ app.post('/', async (req, res) => {
       data: null,
     })
   }
+})
+app.delete('/', async (req, res) => {
+  try {
+    const data = await prisma.record.deleteMany()
+    res.send({
+      msg: 'success',
+      data
+    })
+  } catch(err) {
+    res.send({
+      msg: 'error'
+    })
+  }
+  
 })
 mqttServer.listen(port)
 
