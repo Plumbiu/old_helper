@@ -12,26 +12,26 @@ const httpServer = httpCreateServer()
 const port = 1333
 const wsPort = 8050
 const topic = ['GPS_Status', 'DieDao', 'GPS_Position']
-let flag = false
+
+/**
+ *  {
+ *    "pos": 120.333,30.333,
+ *    "DieDao": true
+ *  }
+ * 
+ */
 aedes.on('publish', async (packet: any, client: any) => {
   const topic = packet.topic
-  const payload = packet.payload.toString()
-  if (topic === 'GPS_Position') {
-    await prisma.record.create({
-      data: {
-        pos: payload,
-        fall: flag,
-      },
-    })
-    if (flag === true) {
-      flag = false
-    }
-  }
-  if (topic === 'DieDao') {
-    if (payload === '1') {
-      flag = true
-    } else {
-      flag = false
+  if (topic === 'GPS') {
+    try {
+      const payload = JSON.parse(packet.payload.toString())
+      await prisma.record.create({
+        data: {
+          pos: payload.pos,
+          fall: payload.DieDao,
+        },
+      })
+    } catch (error) { 
     }
   }
 })
@@ -42,7 +42,10 @@ app.use(express.json())
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(cors())
 
+
 app.get('/', async (req, res) => {
+  console.log(1111);
+  
   try {
     const records = await prisma.record.findMany()
     res.send({

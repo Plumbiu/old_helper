@@ -5,7 +5,7 @@ import getPosURL from '../utils/getURL'
 import { wsURL } from '../utils/useEnv'
 
 const imgSrc = ref('')
-const pos = ref('116.481485 39.990464')
+const pos = ref(['116.481485', '39.990464'])
 const { data } = await axios.get(getPosURL('116.481485,39.990464'), {
   responseType: 'blob',
 })
@@ -13,17 +13,13 @@ imgSrc.value = window.URL.createObjectURL(data)
 
 const client = mqtt.connect(wsURL)
 client.on('connect', () => {
-  client.subscribe(['GPS_Status', 'DieDao', 'GPS_Position'])
+  client.subscribe(['GPS'])
 })
 client.on('message', async (topic: any, message: any) => {
-  if (topic === 'GPS_Status') {
-    console.log(topic, message.toString())
-  }
-  if (topic === 'DieDao') {
-  }
-  if (topic === 'GPS_Position') {
-    pos.value = message.toString().split(',').join(' ')
-    const { data } = await axios.get(getPosURL(message.toString()), {
+  if (topic === 'GPS') {
+    const payload = JSON.parse(message.toString())
+    pos.value = payload.pos.split(',')
+    const { data } = await axios.get(getPosURL(payload.pos), {
       responseType: 'blob',
     })
     imgSrc.value = window.URL.createObjectURL(data)
@@ -32,9 +28,12 @@ client.on('message', async (topic: any, message: any) => {
 </script>
 
 <template>
-  <div>
-    <el-text>{{ pos }}</el-text>
-  </div>
+  <el-statistic :value="pos[0]">
+    <template #title>
+      <div style="display: inline-flex; align-items: center">经纬度</div>
+    </template>
+    <template #suffix>/ {{ pos[1] }}</template>
+  </el-statistic>
   <img :src="imgSrc" alt="图片" />
 </template>
 
