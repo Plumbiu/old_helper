@@ -1,4 +1,5 @@
 import { Prisma, PrismaClient } from '@prisma/client'
+import type { Record } from '@prisma/client'
 import express from 'express'
 import { createServer } from 'net'
 import { createServer as httpCreateServer } from 'http'
@@ -9,44 +10,56 @@ import cors from 'cors'
 const aedes = require('aedes')()
 const mqttServer = createServer(aedes.handle)
 const httpServer = httpCreateServer()
-const port = 1333
+const port = 1334
 const wsPort = 8050
 const topic = ['GPS']
 const prisma = new PrismaClient()
 
-/** 
+/**
  * mqtt 模块：
  * mqtt 数据格式： { "pos": 120.333,30.333, "DieDao": true }
  */
+interface IMqtt {
+  pos: string
+  DieDao: boolean
+}
+
+function handleFall(records: Record[]): Promise<number | undefined> {
+  return new Promise((resolve, reject) => {
+    const record = records.find(item => !item.fall)
+    resolve(record?.id)
+  })
+}
+
 aedes.on('publish', async (packet: any) => {
   const topic = packet.topic
   if (topic === 'GPS') {
     try {
-      const payload = JSON.parse(packet.payload.toString())
+      const payload: IMqtt = JSON.parse(packet.payload.toString())
       // 如果未跌倒
       if (!payload.DieDao) {
         // 获取所有数据
         const records = await prisma.record.findMany()
-        // 获取未跌倒数据
-        const fallRecord = records.find(item => !item.fall)
+        // 获取未跌倒数据的 id
+        const id = await handleFall(records)
         // 可能没有未跌倒的数据，这时要创建一个
-        if(!fallRecord?.id) {
+        if (!id) {
           await prisma.record.create({
-            data: { pos: payload.pos, fall: false }
+            data: { pos: payload.pos, fall: false },
           })
-          return
+        } else {
+          // 更新未跌倒的数据
+          await prisma.record.update({
+            where: { id },
+            data: { pos: payload.pos, createdAt: new Date(Date.now()) },
+          })
         }
-        // 更新未跌倒的数据
-        await prisma.record.update({
-          where: { id: fallRecord.id },
-          data: { pos: payload.pos, createdAt: new Date(Date.now()) }
-        })
       } else {
         // 创建跌倒的数据
         await prisma.record.create({
           data: {
             pos: payload.pos,
-            fall: payload.DieDao,
+            fall: true,
           },
         })
       }
@@ -101,6 +114,4 @@ ws.createServer(
 // 启动 http 服务
 httpServer.listen(wsPort)
 
-app.listen(3000, () =>
-  console.log(`Server ready at: http://localhost:3000`)
-)
+app.listen(3000, () => console.log(`Server ready at: http://localhost:3000`))
