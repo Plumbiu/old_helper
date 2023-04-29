@@ -4,7 +4,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "concurrently \"npx prisma studio\" \"nodemon src/index.ts\"",
-    "start": "ts-node src/index.ts"
+    "start": "concurrently \"npx prisma studio\" \"ts-node src/index.ts\""
   },
   "dependencies": {
     "@prisma/client": "4.11.0",
