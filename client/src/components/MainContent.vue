@@ -18,7 +18,6 @@ import API from './API.vue'
 .container {
   display: flex;
   justify-content: space-around;
-  gap: 20px;
 }
 .table_container {
   width: 50%;

@@ -20,7 +20,7 @@ console.log(import.meta.env.VITE_API_URL);
   height: 80px;
   line-height: 80px;
   text-align: center;
-  background-color: lightskyblue;
+  background-color:#337ecc;
   font-size: 35px;
   color: white;
   font-weight: bold;
