@@ -2,30 +2,15 @@
 import { Ref, inject } from 'vue'
 import axios from 'axios'
 import getPosURL from '../utils/getURL'
-import { wsURL } from '../utils/useEnv'
 
 const imgSrc = inject<Ref<string>>('imgSrc')!
 const pos = inject<Ref<string[]>>('pos')!
 const fall = inject<Ref<boolean>>('fall')!
-const client = mqtt.connect(wsURL)
-client.on('connect', async () => {
-  client.subscribe(['GPS'])
-  const { data } = await axios.get(getPosURL('116.481485,39.990464'), {
-    responseType: 'blob',
-  })
-  imgSrc.value = window.URL.createObjectURL(data)
+const { data } = await axios.get(getPosURL('116.481485,39.990464'), {
+  responseType: 'blob',
 })
-client.on('message', async (topic: any, message: any) => {
-  if (topic === 'GPS') {
-    const { pos: position, DieDao } = JSON.parse(message.toString())
-    pos.value = position.split(',')
-    fall.value = DieDao
-    const { data } = await axios.get(getPosURL(position), {
-      responseType: 'blob',
-    })
-    imgSrc.value = window.URL.createObjectURL(data)
-  }
-})
+imgSrc.value = window.URL.createObjectURL(data)
+
 </script>
 
 <template>
@@ -38,9 +23,6 @@ client.on('message', async (topic: any, message: any) => {
         <template #title>
           <div style="display: inline-flex; align-items: center">
             经/纬度
-            <el-icon style="margin-left: 4px" :size="12">
-              <Male />
-            </el-icon>
           </div>
         </template>
         <template #suffix>/{{(+pos[1]).toFixed(2)}}</template>
