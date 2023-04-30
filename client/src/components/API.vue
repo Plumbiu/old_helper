@@ -30,7 +30,6 @@ function filterFall(rule?: string) {
 
 async function checkPos(s: any) {
   const { pos: position, fall: fallen } = s.row
-  console.log(position);
   const { data } = await axios.get(getPosURL(position), {
     responseType: 'blob'
   })

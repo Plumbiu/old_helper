@@ -17,10 +17,10 @@ client.on('connect', async () => {
 })
 client.on('message', async (topic: any, message: any) => {
   if (topic === 'GPS') {
-    const { pos, DieDao } = JSON.parse(message.toString())
-    pos.value = pos.split(',')
+    const { pos: position, DieDao } = JSON.parse(message.toString())
+    pos.value = position.split(',')
     fall.value = DieDao
-    const { data } = await axios.get(getPosURL(pos), {
+    const { data } = await axios.get(getPosURL(position), {
       responseType: 'blob',
     })
     imgSrc.value = window.URL.createObjectURL(data)

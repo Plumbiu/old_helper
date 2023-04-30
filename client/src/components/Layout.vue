@@ -1,7 +1,5 @@
 <script lang="ts" setup>
 import MainContent from './MainContent.vue'
-console.log(import.meta.env.VITE_API_URL);
-
 </script>
 
 <template>
